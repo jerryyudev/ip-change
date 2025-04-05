@@ -1,0 +1,27 @@
+name: Update Dynamic DNS
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # 每小时执行一次
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  update-ddns:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Get current IP of target domain
+        id: get_ip
+        run: |
+          IP=$(curl -s http://ip-api.com/json/ww.38hf3fb3-n7249f43-f3f43f3f.b666.cn | jq -r '.query')
+          echo "IP=$IP" >> $GITHUB_ENV
+
+      - name: Update Dynamic DNS
+        run: |
+          curl -s "https://ipv4.cloudns.net/api/dynamicURL/?q=OTIwMDEzNjo1OTIyMDQ1NDY6Y2YwYmRlMjAwODUyZDVhZmRjYzJkZjEzM2Q5YTlhOWM5NjM5YTBhZTVkOTkwMTk4YWUzNzg3MmI1ZDc0MjdkMw&ip=${{ env.IP }}"
+
+      - name: Print Updated IP
+        run: echo "Updated IP: ${{ env.IP }}"
